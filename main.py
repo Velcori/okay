@@ -38,27 +38,36 @@ def stripe_webhook():
         amount = (pi.get("amount_received") or pi.get("amount") or 0) / 100
         currency = pi.get("currency", "usd").upper()
         description = pi.get("description", "No description")
+        created_unix = pi.get("created")
 
-        # Generate custom message per status
-        if status == "succeeded":
-            content = f"✅ Payment Succeeded!\n💰 ${amount} {currency}\n📝 {description}"
-        elif status == "processing":
-            content = f"⏳ Payment is processing...\n💰 ${amount} {currency}\n📝 {description}"
-        elif status == "requires_action":
-            content = f"⚠️ Payment requires further action!\n💰 ${amount} {currency}\n📝 {description}"
-        elif status == "requires_capture":
-            content = f"📸 Payment requires capture.\n💰 ${amount} {currency}\n📝 {description}"
-        elif status == "requires_confirmation":
-            content = f"📝 Payment requires confirmation.\n💰 ${amount} {currency}\n📝 {description}"
-        elif status == "requires_payment_method":
-            content = f"💳 Payment method required.\n💰 ${amount} {currency}\n📝 {description}"
-        elif status == "canceled":
-            content = f"❌ Payment was canceled.\n💰 ${amount} {currency}\n📝 {description}"
-        else:
-            content = f"🤖 Unknown status `{status}`\n💰 ${amount} {currency}\n📝 {description}"
+        status_titles = {
+            "succeeded": ("✅ Payment Succeeded", 0x2ecc71),
+            "processing": ("⏳ Payment Processing", 0xf1c40f),
+            "requires_action": ("⚠️ Requires Action", 0xe67e22),
+            "requires_capture": ("📸 Requires Capture", 0x9b59b6),
+            "requires_confirmation": ("📝 Requires Confirmation", 0x3498db),
+            "requires_payment_method": ("💳 Needs Payment Method", 0xe74c3c),
+            "canceled": ("❌ Payment Canceled", 0x95a5a6)
+        }
 
-        discord_message = { "content": content }
-        response = requests.post(DISCORD_WEBHOOK_URL, json=discord_message)
+        title, color = status_titles.get(status, (f"🤖 Unknown Status: {status}", 0x7289da))
+
+        embed = {
+            "title": title,
+            "color": color,
+            "fields": [
+                {"name": "💰 Amount", "value": f"${amount:.2f} {currency}", "inline": True},
+                {"name": "📝 Description", "value": description, "inline": True},
+                {"name": "🆔 Payment Intent", "value": pi.get("id"), "inline": False}
+            ],
+            "timestamp": datetime.utcfromtimestamp(created_unix).isoformat() if created_unix else None
+        }
+
+        payload = {
+            "embeds": [embed]
+        }
+
+        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         print("📤 Discord response:", response.status_code)
 
     return jsonify({"status": "success"}), 200
