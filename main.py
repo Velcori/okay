@@ -1,3 +1,20 @@
+import os
+import stripe
+import requests
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+STRIPE_SECRET = os.getenv("STRIPE_SECRET")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+STRIPE_ENDPOINT_SECRET = os.getenv("STRIPE_ENDPOINT_SECRET")
+
+stripe.api_key = STRIPE_SECRET
+
+@app.route("/", methods=["GET"])
+def health_check():
+    return jsonify({"status": "ok"}), 200
+
 @app.route("/", methods=["POST"])
 def stripe_webhook():
     payload = request.data
@@ -45,3 +62,7 @@ def stripe_webhook():
         print("📤 Discord response:", response.status_code)
 
     return jsonify({"status": "success"}), 200
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
