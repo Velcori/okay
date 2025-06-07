@@ -46,7 +46,7 @@ def stripe_webhook():
         elif status == "processing":
             content = f"⏳ Payment is processing...\n💰 ${amount} {currency}"
         elif status == "requires_action":
-            content = f"⚠️ Payment requires further action!\n💰 ${amount} {currency}"
+            content = f"⚠️ Payment incomplete!\n💰 ${amount} {currency}"
         elif status == "requires_capture":
             content = f"📸 Payment requires capture.\n💰 ${amount} {currency}"
         elif status == "requires_confirmation":
