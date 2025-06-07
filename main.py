@@ -42,11 +42,13 @@ def stripe_webhook():
 
         # Generate custom message per status
         if status == "succeeded":
-            content = f"✅ Payment Succeeded!\n💰 ${amount} {currency}"
+            content = f"Payment Succeeded!\n ${amount} {currency}"
         elif status == "requires_action":
-            content = f"⚠️ Payment incomplete!\n💰 ${amount} {currency}"
+            content = f"Payment incomplete!\n ${amount} {currency}"
+        elif status == "created":
+            content = f"Payment created!\n ${amount} {currency}"
         else:
-            content = f"🤖 Unknown status {status}\n💰 ${amount} {currency}"
+            content = f"Unknown status {status}\n ${amount} {currency}"
 
         discord_message = { "content": content }
         response = requests.post(DISCORD_WEBHOOK_URL, json=discord_message)
