@@ -1,12 +1,13 @@
+import os
 import stripe
-from flask import Flask, request, jsonify
 import requests
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-stripe.api_key = "sk_test_..."  # Your secret key
-endpoint_secret = "whsec_..."   # From Stripe dashboard
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/..."
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -22,9 +23,12 @@ def webhook():
         pi = event["data"]["object"]
         amount = pi["amount_received"] / 100
         currency = pi["currency"].upper()
-
         requests.post(DISCORD_WEBHOOK_URL, json={
-            "content": f"✅ Received {amount} {currency} payment!"
+            "content": f"✅ New payment received: **{amount} {currency}**"
         })
 
     return jsonify({"status": "ok"})
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Railway sets $PORT
+    app.run(host="0.0.0.0", port=port)
