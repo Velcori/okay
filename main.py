@@ -42,21 +42,21 @@ def stripe_webhook():
 
         # Generate custom message per status
         if status == "succeeded":
-            content = f"✅ Payment Succeeded!\n💰 ${amount} {currency}\n📝 {description}"
+            content = f"✅ Payment Succeeded!\n💰 ${amount} {currency}"
         elif status == "processing":
-            content = f"⏳ Payment is processing...\n💰 ${amount} {currency}\n📝 {description}"
+            content = f"⏳ Payment is processing...\n💰 ${amount} {currency}"
         elif status == "requires_action":
-            content = f"⚠️ Payment requires further action!\n💰 ${amount} {currency}\n📝 {description}"
+            content = f"⚠️ Payment requires further action!\n💰 ${amount} {currency}"
         elif status == "requires_capture":
-            content = f"📸 Payment requires capture.\n💰 ${amount} {currency}\n📝 {description}"
+            content = f"📸 Payment requires capture.\n💰 ${amount} {currency}"
         elif status == "requires_confirmation":
-            content = f"📝 Payment requires confirmation.\n💰 ${amount} {currency}\n📝 {description}"
+            content = f"📝 Payment requires confirmation.\n💰 ${amount} {currency}"
         elif status == "requires_payment_method":
-            content = f"💳 Payment method required.\n💰 ${amount} {currency}\n📝 {description}"
+            content = f"💳 Payment method required.\n💰 ${amount} {currency}"
         elif status == "canceled":
-            content = f"❌ Payment was canceled.\n💰 ${amount} {currency}\n📝 {description}"
+            content = f"❌ Payment was canceled.\n💰 ${amount} {currency}"
         else:
-            content = f"🤖 Unknown status {status}\n💰 ${amount} {currency}\n📝 {description}"
+            content = f"🤖 Unknown status {status}\n💰 ${amount} {currency}"
 
         discord_message = { "content": content }
         response = requests.post(DISCORD_WEBHOOK_URL, json=discord_message)
