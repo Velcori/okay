@@ -1,12 +1,30 @@
-from flask import Flask
-import os
+import stripe
+from flask import Flask, request, jsonify
+import requests
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return 'Stripe webhook server is up and running!'
+stripe.api_key = "sk_test_..."  # Your secret key
+endpoint_secret = "whsec_..."   # From Stripe dashboard
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/..."
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Railway sets $PORT
-    app.run(host='0.0.0.0', port=port)
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    payload = request.data
+    sig_header = request.headers.get("Stripe-Signature")
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+    except stripe.error.SignatureVerificationError:
+        return "Invalid signature", 400
+
+    if event["type"] == "payment_intent.succeeded":
+        pi = event["data"]["object"]
+        amount = pi["amount_received"] / 100
+        currency = pi["currency"].upper()
+
+        requests.post(DISCORD_WEBHOOK_URL, json={
+            "content": f"✅ Received {amount} {currency} payment!"
+        })
+
+    return jsonify({"status": "ok"})
