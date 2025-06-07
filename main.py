@@ -2,9 +2,9 @@ from flask import Flask
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET"])
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return "Server is running!", 200
+    return {"status": "ok"}, 200
 
 if __name__ == "__main__":
     import os
