@@ -43,18 +43,8 @@ def stripe_webhook():
         # Generate custom message per status
         if status == "succeeded":
             content = f"✅ Payment Succeeded!\n💰 ${amount} {currency}"
-        elif status == "processing":
-            content = f"⏳ Payment is processing...\n💰 ${amount} {currency}"
         elif status == "requires_action":
             content = f"⚠️ Payment incomplete!\n💰 ${amount} {currency}"
-        elif status == "requires_capture":
-            content = f"📸 Payment requires capture.\n💰 ${amount} {currency}"
-        elif status == "requires_confirmation":
-            content = f"📝 Payment requires confirmation.\n💰 ${amount} {currency}"
-        elif status == "requires_payment_method":
-            content = f"💳 Payment method required.\n💰 ${amount} {currency}"
-        elif status == "canceled":
-            content = f"❌ Payment was canceled.\n💰 ${amount} {currency}"
         else:
             content = f"🤖 Unknown status {status}\n💰 ${amount} {currency}"
 
