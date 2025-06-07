@@ -58,17 +58,19 @@ def stripe_webhook():
             "color": color,
             "fields": [
                 {"name": "💰 Amount", "value": f"${amount:.2f} {currency}", "inline": True},
-                {"name": "📝 Description", "value": description, "inline": True},
+                {"name": "📝 Description", "value": description[:1024], "inline": True},
                 {"name": "🆔 Payment Intent", "value": pi.get("id"), "inline": False}
-            ],
-            "timestamp": datetime.fromtimestamp(created_unix, timezone.utc).isoformat() if created_unix else None
+            ]
         }
 
-        payload = {
+        if created_unix:
+            embed["timestamp"] = datetime.fromtimestamp(created_unix, timezone.utc).isoformat()
+
+        discord_payload = {
             "embeds": [embed]
         }
 
-        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
+        response = requests.post(DISCORD_WEBHOOK_URL, json=discord_payload)
         print("📤 Discord response:", response.status_code)
 
     return jsonify({"status": "success"}), 200
