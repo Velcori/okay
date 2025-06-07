@@ -2,7 +2,7 @@ import os
 import stripe
 import requests
 from flask import Flask, request, jsonify
-from datetime import datetime
+from datetime import datetime, timezone
 
 app = Flask(__name__)
 
@@ -61,7 +61,7 @@ def stripe_webhook():
                 {"name": "📝 Description", "value": description, "inline": True},
                 {"name": "🆔 Payment Intent", "value": pi.get("id"), "inline": False}
             ],
-            "timestamp": datetime.utcfromtimestamp(created_unix).isoformat() if created_unix else None
+            "timestamp": datetime.fromtimestamp(created_unix, timezone.utc).isoformat() if created_unix else None
         }
 
         payload = {
