@@ -29,7 +29,7 @@ def stripe_webhook():
     except stripe.error.SignatureVerificationError:
         return jsonify({"error": "Invalid signature"}), 400
 
-    if event["type"] == "payment_intent.succeeded":
+    if event["type"].startswith("payment_intent."):
         payment_intent = event["data"]["object"]
         amount = payment_intent["amount_received"] / 100
         currency = payment_intent["currency"].upper()
